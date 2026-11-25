@@ -1,0 +1,65 @@
+<odoo>
+<record id="dashboard_form" model="ir.ui.view">
+ <field name="name">acme.project.dashboard.form</field><field name="model">acme.project.dashboard</field>
+ <field name="arch" type="xml">
+  <form string="Project Financial &amp; Progress Dashboard" create="0" delete="0" duplicate="0" class="acme_dashboard_form">
+   <sheet>
+    <div class="acme_dashboard">
+     <div class="acme_dashboard_heading">
+      <h1>Project Financial &amp; Progress Dashboard</h1>
+      <button name="action_refresh" type="object" string="Refresh" icon="fa-refresh" class="btn btn-primary"/>
+     </div>
+     <field name="assigned_only" invisible="1"/>
+     <field name="project_id" invisible="1"/>
+     <div class="acme_filters">
+      <div>
+       <label for="project_ids" string="Projects"/>
+       <field name="project_ids" widget="many2many_tags" placeholder="All Projects (Rollup)"
+              domain="[('company_id', 'in', allowed_company_ids), ('is_template', '=', False), ('user_id', '=?', uid if assigned_only else False)]"
+              options="{'no_create': True, 'no_open': True}"/>
+      </div>
+      <div><label for="date_from" string="From"/><field name="date_from"/></div>
+      <div><label for="date_to" string="To"/><field name="date_to"/></div>
+     </div>
+     <p class="acme_filter_note">From and To apply to Schedule &amp; Delay and Period Incurred Cost.</p>
+     <div class="acme_cards">
+      <section class="acme_card"><h2>Project Progress</h2><span class="acme_scope">Lifetime</span><field name="progress_panel" nolabel="1"/></section>
+      <section class="acme_card"><h2>Schedule &amp; Delay</h2><span class="acme_scope">Selected period</span><field name="schedule_panel" nolabel="1"/>
+       <button name="action_dashboard_overdue" type="object" string="Overdue Tasks" class="btn btn-secondary"/>
+      </section>
+      <section class="acme_card acme_financial_card"><h2>Revenue &amp; Profitability</h2><span class="acme_scope">Lifetime</span><field name="margin_panel" nolabel="1"/></section>
+      <section class="acme_card"><h2>WIP</h2><field name="wip_panel" nolabel="1"/></section>
+      <section class="acme_card"><h2>Budget vs. Actual</h2><span class="acme_scope">Lifetime</span><field name="budget_panel" nolabel="1"/></section>
+     </div>
+     <notebook>
+      <page name="acme_r13" string="R-13 Monthly Monitoring">
+       <button name="action_acme_period_wip" type="object" string="Create / Open Period-End WIP"
+               groups="account.group_account_user" invisible="not project_id"/>
+       <field name="acme_r13_summary" readonly="1" nolabel="1"/>
+       <details class="acme_definitions">
+        <summary>Additional financial figures</summary>
+        <field name="revenue_panel" readonly="1" nolabel="1"/>
+       </details>
+      </page>
+      <page name="acme_r15" invisible="not project_id" string="R-15 Cash Forecast">
+       <group><field name="acme_cash_interval"/><field name="acme_cash_from"/><field name="acme_cash_to"/></group>
+       <field name="acme_r15_forecast" readonly="1" nolabel="1"/>
+       <p>Posted invoices and bills use their open installments and due dates. Unbilled purchase quantities are estimated at the PO value and expected receipt date.</p>
+      </page>
+      <page name="acme_r11" invisible="not project_id" string="R-11 Expenses and Advances">
+       <field name="acme_r11_settlement" readonly="1" nolabel="1"/>
+       <group>
+        <button name="action_acme_expenses" type="object" string="Open Project Analytic Expenses"/>
+        <button name="action_acme_staff_advances" type="object" string="Open Authorized Mobilization Advances"/>
+       </group>
+       <p>Staff balances use posted Finance entries and their reversals. Open the mobilization request to review Expenses, receipts and linked entries.</p>
+      </page>
+     </notebook>
+     <field name="finance_note" readonly="1" nolabel="1" invisible="not finance_note"/>
+    </div>
+   </sheet>
+  </form>
+ </field>
+</record>
+<record id="project_dashboard_button" model="ir.ui.view"><field name="name">project.dashboard.button</field><field name="model">project.project</field><field name="inherit_id" ref="project.edit_project"/><field name="arch" type="xml"><xpath expr="//header" position="inside"><button name="action_acme_dashboard" type="object" string="Project Dashboard" groups="project.group_project_user"/></xpath></field></record>
+</odoo>

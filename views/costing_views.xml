@@ -1,0 +1,71 @@
+<odoo>
+    <record id="project_operating_budget_form" model="ir.ui.view">
+        <field name="name">project.acme.operating.budget</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="acme_project_core.project_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='acme_contract']" position="inside">
+                <group string="Costing Baseline" groups="account.group_account_manager,acme_project_core.group_acme_odm,acme_project_core.group_acme_dm">
+                    <field name="acme_operating_budget_id" options="{'no_create': True}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+    <record id="budget_line_cost_category" model="ir.ui.view">
+        <field name="name">budget.line.acme.cost.category</field>
+        <field name="model">budget.line</field>
+        <field name="inherit_id" ref="account_budget.view_budget_line_form"/>
+        <field name="arch" type="xml">
+            <field name="budget_amount" position="after">
+                <field name="acme_cost_category"/>
+            </field>
+        </field>
+    </record>
+    <record id="company_wip_configuration" model="ir.ui.view">
+        <field name="name">res.company.acme.wip.policy</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="acme_project_approvals.company_project_costing_policy"/>
+        <field name="arch" type="xml">
+            <field name="acme_earned_revenue_method" position="after">
+                <field name="acme_dashboard_progress_basis" groups="account.group_account_manager"/>
+                <button name="action_acme_cost_issue_types" string="Configure Chargeable Stock Operations"
+                        type="object" groups="account.group_account_manager"/>
+                <field name="acme_wip_journal_id" groups="account.group_account_manager"/>
+                <field name="acme_wip_asset_account_id" groups="account.group_account_manager"/>
+                <field name="acme_wip_liability_account_id" groups="account.group_account_manager"/>
+                <field name="acme_wip_offset_account_id" groups="account.group_account_manager"/>
+                <field name="acme_wip_reversal_policy" groups="account.group_account_manager"/>
+            </field>
+        </field>
+    </record>
+    <record id="journal_project_wip_basis" model="ir.ui.view">
+        <field name="name">account.move.acme.wip.basis</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page name="acme_wip_basis" string="Project WIP Basis" invisible="not acme_wip_project_id">
+                    <group>
+                        <field name="acme_wip_project_id"/>
+                        <field name="acme_wip_cutoff"/>
+                        <field name="acme_wip_target"/>
+                        <field name="acme_wip_posted_balance"/>
+                        <field name="acme_wip_reversal"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="timesheet_workshop_cost_source" model="ir.ui.view">
+        <field name="name">account.analytic.line.workshop.time.source</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_form"/>
+        <field name="arch" type="xml">
+            <field name="unit_amount" position="after">
+                <field name="acme_workshop_time_id" groups="mrp.group_mrp_user" invisible="not project_id"
+                       domain="[('workorder_id.production_id.project_id', '=', project_id), ('employee_id', '=', employee_id)]"
+                       options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+</odoo>
